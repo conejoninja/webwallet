@@ -60,7 +60,7 @@ angular.module('webwalletApp')
 
       modal = $modal.open({
         templateUrl: 'views/modal/forget.html',
-        size: '',
+        size: 'sm',
         windowClass: '',
         backdrop: 'static',
         keyboard: false,
