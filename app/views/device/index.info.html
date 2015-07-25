@@ -1,9 +1,13 @@
 <h3>
   {{device.label()}}
-  <button class="btn btn-default pull-right"
-          ng-click="changeLabel(device)">
-    <span class="glyphicon glyphicon-pencil"></span> Change label
-  </button>
+    <button class="btn btn-default pull-right"
+            ng-click="changeLabel(device)">
+        <span class="glyphicon glyphicon-pencil"></span> Change label
+    </button>
+    <button class="btn btn-default pull-right"
+            ng-click="changeHomeScreen(device)">
+        <span class="glyphicon glyphicon-pencil"></span> Change homescreen
+    </button>
 </h3>
 <p class="lead"
    ng-hide="device.isLoading()"

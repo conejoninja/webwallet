@@ -522,6 +522,18 @@ angular.module('webwalletApp').factory('TrezorDevice', function (
         });
     };
 
+    TrezorDevice.prototype.changeHomeScreen = function (homescreen) {
+        var self = this;
+
+        return self.withLoading(function () {
+            return self._session.initialize()
+                .then(function () {
+                    return self._session.applySettings({ homescreen: homescreen });
+                })
+                .then(function () { return self.initializeDevice(); });
+        });
+    };
+
     TrezorDevice.prototype.changeLabel = function (label) {
         var self = this;
 

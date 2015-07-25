@@ -13,7 +13,8 @@ angular.module('webwalletApp').controller('DeviceCtrl', function (
     deviceList,
     modalOpener,
     forgetModalService,
-    deviceService) {
+    deviceService,
+    fileReader) {
 
     'use strict';
 
@@ -115,21 +116,78 @@ angular.module('webwalletApp').controller('DeviceCtrl', function (
                 return $scope.device.changeLabel(label);
             })
             .then(
-                function () {
-                    flash.success('Label was successfully changed');
-                },
-                function (err) {
-                    /*
-                     * Show error message only if there actually was an
-                     * error.  Closing the label modal triggers rejection
-                     * as well, but without an error.
-                     */
-                    if (err) {
-                        flash.error(err.message ||
-                                    'Failed to change the device label');
-                    }
+            function () {
+                flash.success('Label was successfully changed');
+            },
+            function (err) {
+                /*
+                 * Show error message only if there actually was an
+                 * error.  Closing the label modal triggers rejection
+                 * as well, but without an error.
+                 */
+                if (err) {
+                    flash.error(err.message ||
+                    'Failed to change the device label');
                 }
-            );
+            }
+        );
+    };
+
+    /**
+     * Ask the user to set the device homescreen.
+     */
+    $scope.changeHomeScreen = function () {
+        promptHomeScreen()
+            .then(function () {
+
+                if (document.getElementById('homescreenpreview').src!='') {
+                    var canvas = document.getElementById('homescreen-canvas');
+                    var ctx = canvas.getContext("2d");
+                    var imageData = ctx.getImageData(0,0, 128, 64);
+
+                    var homescreen = '';
+                    for (var j=0; j<64; j++) {
+                        for (var i = 0; i < 16; i++) {
+                            var bytestr = '';
+                            for (var k = 0; k < 8; k++) {
+                                var index = (j*4)*128+(((i*8)+k)*4);
+                                bytestr += imageData.data[index]==0?'0':'1';
+                            }
+                            homescreen += String.fromCharCode(parseInt(bytestr, 2));
+                        }
+                    }
+
+                    var chr, hex = '';
+                    for (var i = 0; i < homescreen.length; i++) {
+                        chr = (homescreen.charCodeAt(i) & 0xFF).toString(16);
+                        hex += chr.length < 2 ? '0' + chr : chr;
+                    }
+
+                    return $scope.device.changeHomeScreen(hex);
+                } else {
+                    var res = {};
+                    res.type = 'Failure';
+                    res.message = 'No image selected';
+                    flash.error(res.message);
+                    throw res;
+                }
+            })
+            .then(
+            function () {
+                flash.success('Homescreen was successfully changed');
+            },
+            function (err) {
+                /*
+                 * Show error message only if there actually was an
+                 * error.  Closing the label modal triggers rejection
+                 * as well, but without an error.
+                 */
+                if (err) {
+                    flash.error(err.message ||
+                    'Failed to change the device homescreen');
+                }
+            }
+        );
     };
 
     /**
@@ -171,6 +229,14 @@ angular.module('webwalletApp').controller('DeviceCtrl', function (
         return modalOpener.openModal($scope, 'label','sm', {
             label: $scope.device.features.label || ''
         }).result;
+    }
+
+    /**
+     * Ask the user to set the device homescreen.
+     */
+    function promptHomeScreen() {
+
+        return modalOpener.openModal($scope, 'homescreen','sm').result;
     }
 
     /**
